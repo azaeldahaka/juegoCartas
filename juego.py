@@ -1,30 +1,37 @@
 import random
 
-# Definimos las cartas genéricas
+class Carta:
+    def __init__(self, tipo, descripcion):
+        self.tipo = tipo  # 'Verdad' o 'Reto'
+        self.descripcion = descripcion
+
+    def __str__(self):
+        return f"{self.tipo}: {self.descripcion}"
+
 def generar_cartas():
+    # Cartas de ejemplo, puedes agregar más
     cartas = [
-        {'tipo': 'verdad', 'descripcion': '¿Cuál es tu mayor miedo?'},
-        {'tipo': 'reto', 'descripcion': 'Haz 10 saltos de tijera'},
-        {'tipo': 'verdad', 'descripcion': '¿Qué harías si fueras invisible por un día?'},
-        {'tipo': 'reto', 'descripcion': 'Canta una canción a todo pulmón'},
-        {'tipo': 'verdad', 'descripcion': '¿Qué es lo más vergonzoso que te ha pasado?'},
-        {'tipo': 'reto', 'descripcion': 'Haz una imitación de alguien famoso'},
+        Carta("Verdad", "¿Cuál es tu mayor miedo?"),
+        Carta("Verdad", "¿A quién le contarías tus secretos más oscuros?"),
+        Carta("Reto", "Baila durante 30 segundos sin música."),
+        Carta("Reto", "Imita a un animal hasta que alguien adivine cuál es.")
     ]
-    random.shuffle(cartas)  # Barajamos las cartas
+    random.shuffle(cartas)
     return cartas
 
-# Definimos la clase Jugador
 class Jugador:
-    def _init_(self, nombre):
+    def __init__(self, nombre):
         self.nombre = nombre
         self.puntos = 0
 
     def ganar_punto(self):
         self.puntos += 1
 
-# Definimos la clase Juego
+    def __str__(self):
+        return f"{self.nombre} (Puntos: {self.puntos})"
+
 class Juego:
-    def _init_(self):
+    def __init__(self):
         self.jugadores = []
         self.cartas = generar_cartas()
         self.turno_actual = 0
@@ -39,31 +46,3 @@ class Juego:
 
     def obtener_siguiente_carta(self):
         return self.cartas.pop() if self.cartas else None
-
-    def jugar(self):
-        while self.cartas:
-            jugador = self.obtener_siguiente_jugador()
-            carta = self.obtener_siguiente_carta()
-
-            print(f"\nEs el turno de {jugador.nombre}!")
-            print(f"Carta: {carta['tipo'].capitalize()} - {carta['descripcion']}")
-
-            respuesta = input(f"{jugador.nombre}, ¿quieres aceptar el reto/verdad? (sí/no): ").strip().lower()
-
-            if respuesta == 'sí':
-                jugador.ganar_punto()
-                print(f"¡{jugador.nombre} ha ganado un punto!")
-            else:
-                print(f"{jugador.nombre} ha decidido no participar en esta carta.")
-
-            print(f"--- Puntos de {jugador.nombre}: {jugador.puntos} ---")
-
-        # Al final del juego
-        self.mostrar_resultados()
-
-    def mostrar_resultados(self):
-        print("\nEl juego ha terminado. Resultados finales:")
-        for jugador in self.jugadores:
-            print(f"{jugador.nombre}: {jugador.puntos} puntos")
-        ganador = max(self.jugadores, key=lambda j: j.puntos)
-        print(f"¡{ganador.nombre} ha ganado el juego!")
