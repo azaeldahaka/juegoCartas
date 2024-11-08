@@ -31,6 +31,9 @@ class JuegoInterfaz:
         self.nombre_entry = tk.Entry(self.frame_jugadores, font=self.custom_font)
         self.nombre_entry.pack(padx=10, side=tk.LEFT)
 
+        # Vinculamos la tecla Enter a la acción de agregar jugador
+        self.nombre_entry.bind("<Return>", self.agregar_jugador_por_enter)
+
         self.agregar_button = tk.Button(self.frame_jugadores, text="Agregar Jugador", command=self.agregar_jugador, font=self.custom_font, bg="#4CAF50", fg="white")
         self.agregar_button.pack(pady=10, side=tk.LEFT)
 
@@ -65,6 +68,10 @@ class JuegoInterfaz:
         else:
             self.actualizar_mensaje("El nombre no puede estar vacío.")
     
+    def agregar_jugador_por_enter(self, event):
+        """Esta función es llamada cuando se presiona Enter."""
+        self.agregar_jugador()
+
     def terminar_agregar_jugadores(self):
         self.juego.agregar_jugador(self.nombre_entry.get())
         self.nombre_entry.delete(0, tk.END)
@@ -127,6 +134,8 @@ class JuegoInterfaz:
             resultado = "¡Es un empate entre los siguientes jugadores!\n"
             resultado += "\n".join([f"{ganador.nombre} con {ganador.puntos} puntos." for ganador in ganadores])
             self.actualizar_mensaje(resultado)
+
+
 
 # Crear la ventana principal
 if __name__ == "__main__":
