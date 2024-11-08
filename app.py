@@ -31,15 +31,20 @@ class JuegoInterfaz:
         self.nombre_entry = tk.Entry(self.frame_jugadores, font=self.custom_font)
         self.nombre_entry.pack(padx=10, side=tk.LEFT)
 
-        # Vinculamos la tecla Enter a la acción de agregar jugador
-        self.nombre_entry.bind("<Return>", self.agregar_jugador_por_enter)
+        self.nombre_entry.bind("<Return>", self.agregar_jugador)
 
         self.agregar_button = tk.Button(self.frame_jugadores, text="Agregar Jugador", command=self.agregar_jugador, font=self.custom_font, bg="#4CAF50", fg="white")
         self.agregar_button.pack(pady=10, side=tk.LEFT)
 
-        # Botones de finalizar y iniciar
-        self.fin_button = tk.Button(self.root, text="Terminar de Agregar Jugadores", command=self.terminar_agregar_jugadores, font=self.custom_font, state=tk.DISABLED, bg="#ff9800", fg="white")
-        self.fin_button.pack(pady=10)
+        # Frame para mostrar los jugadores
+        self.frame_jugadores_participantes = tk.Frame(self.root, bg="#f0f0f0")
+        self.frame_jugadores_participantes.pack(pady=5)
+
+        self.jugadores_label = tk.Label(self.frame_jugadores_participantes, text="Jugadores Participantes:", font=self.custom_font, bg="#f0f0f0")
+        self.jugadores_label.pack(pady=10)
+
+        self.jugadores_lista = tk.Listbox(self.frame_jugadores_participantes, font=self.custom_font, width=50, height=5)
+        self.jugadores_lista.pack(padx=10, pady=6)
 
         self.iniciar_button = tk.Button(self.root, text="Iniciar Juego", command=self.iniciar_juego, font=self.custom_font, state=tk.DISABLED, bg="#2196F3", fg="white")
         self.iniciar_button.pack(pady=10)
@@ -58,6 +63,12 @@ class JuegoInterfaz:
         self.rechazar_button = tk.Button(self.frame_acciones, text="Rechazar", command=lambda: self.responder_reto(False), state=tk.DISABLED, font=self.custom_font, bg="#F44336", fg="white")
         self.rechazar_button.pack(padx=10, side=tk.LEFT)
 
+        self.reiniciar_button = tk.Button(self.root, text="Reiniciar Juego", command=self.reiniciar_juego, font=self.custom_font, bg="#FF9800", fg="white")
+        self.reiniciar_button.pack(pady=10)
+
+
+        
+
     def agregar_jugador(self):
         nombre = self.nombre_entry.get()
         if nombre:
@@ -68,16 +79,6 @@ class JuegoInterfaz:
         else:
             self.actualizar_mensaje("El nombre no puede estar vacío.")
     
-    def agregar_jugador_por_enter(self, event):
-        """Esta función es llamada cuando se presiona Enter."""
-        self.agregar_jugador()
-
-    def terminar_agregar_jugadores(self):
-        self.juego.agregar_jugador(self.nombre_entry.get())
-        self.nombre_entry.delete(0, tk.END)
-        self.fin_button.config(state=tk.DISABLED)
-        self.iniciar_button.config(state=tk.NORMAL)
-        self.actualizar_mensaje("Jugadores agregados, ¡listos para jugar!")
 
     def iniciar_juego(self):
         if len(self.juego.jugadores) < 2:
@@ -135,7 +136,23 @@ class JuegoInterfaz:
             resultado += "\n".join([f"{ganador.nombre} con {ganador.puntos} puntos." for ganador in ganadores])
             self.actualizar_mensaje(resultado)
 
+    def agregar_jugador(self, event=None):  # Se añade un parámetro opcional 'event'
+        nombre = self.nombre_entry.get()
+        if nombre:
+            self.juego.agregar_jugador(nombre)
+            self.jugadores_lista.insert(tk.END, nombre)  # Agregar el jugador a la lista
+            self.nombre_entry.delete(0, tk.END)
+            self.actualizar_mensaje(f"{nombre} ha sido agregado al juego.")
+            self.iniciar_button.config(state=tk.NORMAL)
+        else:
+            self.actualizar_mensaje("El nombre no puede estar vacío.")
 
+    def reiniciar_juego(self):
+        self.juego = Juego()  # Reiniciar el objeto Juego
+        self.jugadores_lista.delete(0, tk.END)  # Limpiar la lista de jugadores
+        self.turno_actual = 0  # Reiniciar el turno
+        self.iniciar_button.config(state=tk.DISABLED)  # Deshabilitar el botón de iniciar
+        self.actualizar_mensaje("El juego ha sido reiniciado. ¡Esperando jugadores...")
 
 # Crear la ventana principal
 if __name__ == "__main__":
