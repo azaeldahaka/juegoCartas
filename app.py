@@ -1,10 +1,8 @@
 import tkinter as tk
-from tkinter import font
 from tkinter import ttk
-from juego import Juego
-
-# Usar un tema de ttkthemes para un diseño más moderno
+from PIL import Image, ImageDraw, ImageTk
 import ttkthemes
+from juego import Juego
 
 class JuegoInterfaz:
     def __init__(self, root):
@@ -15,7 +13,7 @@ class JuegoInterfaz:
 
         # Usar un tema moderno
         style = ttkthemes.ThemedStyle(root)
-        style.set_theme("arc")  # Elige el tema 'arc' para un diseño moderno
+        style.set_theme("arc")  # Elegir el tema 'arc' para un diseño moderno
 
         self.juego = Juego()
         self.turno_actual = 0
@@ -46,23 +44,50 @@ class JuegoInterfaz:
         self.iniciar_button = ttk.Button(self.root, text="Iniciar Juego", command=self.iniciar_juego, state=tk.DISABLED)
         self.iniciar_button.pack(pady=10)
 
-        # Label para mostrar los mensajes del juego
-        self.mensaje_label = tk.Label(self.root, text="Esperando jugadores...", font=("Helvetica", 14), wraplength=400, justify="left", bg="#f7f7f7")
-        self.mensaje_label.pack(pady=20)
-
         # Frame para los botones de aceptar/rechazar
         self.frame_acciones = tk.Frame(self.root, bg="#f7f7f7")
         self.frame_acciones.pack(pady=20)
 
-        self.aceptar_button = ttk.Button(self.frame_acciones, text="Aceptar", command=lambda: self.responder_reto(True), state=tk.DISABLED)
-        self.aceptar_button.pack(padx=10, side=tk.LEFT)
-
-        self.rechazar_button = ttk.Button(self.frame_acciones, text="Rechazar", command=lambda: self.responder_reto(False), state=tk.DISABLED)
-        self.rechazar_button.pack(padx=10, side=tk.LEFT)
-
         # Botón de reinicio siempre activo, ubicado al final
         self.reiniciar_button = ttk.Button(self.root, text="Reiniciar Juego", command=self.reiniciar_juego)
         self.reiniciar_button.pack(pady=20, side=tk.BOTTOM)
+
+        # Recuadro donde aparecerá el turno y la carta
+        self.carta_frame = tk.Frame(self.root, bg="#f7f7f7")
+        self.carta_frame.pack(pady=20)
+
+        # Crear un canvas para la "carta" redondeada
+        self.canvas = tk.Canvas(self.carta_frame, width=500, height=250, bg="#ffffff", bd=0, highlightthickness=0)
+        self.canvas.pack()
+
+        # Redondear el rectángulo con la función de PIL
+        self.redondear_rectangulo()
+
+        # Label para mostrar los mensajes del juego
+        self.mensaje_label = tk.Label(self.canvas, text="Esperando jugadores...", font=("Helvetica", 14), wraplength=400, justify="center", bg="#ffffff", fg="#333333")
+        self.mensaje_label.place(relx=0.5, rely=0.3, anchor="center")
+
+        # Botones de Aceptar y Rechazar dentro del recuadro
+        self.aceptar_button = ttk.Button(self.canvas, text="Aceptar", command=lambda: self.responder_reto(True), state=tk.DISABLED)
+        self.aceptar_button.place(relx=0.3, rely=0.7, anchor="center")
+
+        self.rechazar_button = ttk.Button(self.canvas, text="Rechazar", command=lambda: self.responder_reto(False), state=tk.DISABLED)
+        self.rechazar_button.place(relx=0.7, rely=0.7, anchor="center")
+
+    def redondear_rectangulo(self):
+        """Dibuja un rectángulo redondeado en el canvas."""
+        # Crear una imagen en blanco
+        image = Image.new('RGBA', (500, 250), (255, 255, 255, 255))  # Ajustar tamaño para todo el contenido
+        draw = ImageDraw.Draw(image)
+        
+        # Dibujar el rectángulo redondeado con PIL
+        draw.rounded_rectangle([(10, 10), (480, 240)], radius=20, fill="#ffffff", outline="#4CAF50", width=2)
+
+        # Convertir la imagen a un formato que pueda ser usado en Tkinter
+        self.img = ImageTk.PhotoImage(image)
+
+        # Mostrar la imagen en el canvas
+        self.canvas.create_image(0, 0, image=self.img, anchor=tk.NW)
 
     def agregar_jugador(self):
         nombre = self.nombre_entry.get()
@@ -89,7 +114,7 @@ class JuegoInterfaz:
             self.actualizar_mensaje("Se necesitan al menos dos jugadores.")
             return
         
-        self.actualizar_mensaje(f"El juego ha comenzado... ¡Es el turno de {self.juego.jugadores[self.turno_actual].nombre}!")
+        self.actualizar_mensaje(f"El juego ha comenzado...")
         self.jugar_turno()
 
     def jugar_turno(self):
@@ -101,8 +126,8 @@ class JuegoInterfaz:
         jugador = self.juego.jugadores[self.turno_actual]
         carta = self.juego.obtener_siguiente_carta()
 
-        # Actualizar el mensaje con el jugador actual
-        self.actualizar_mensaje(f"Es el turno de {jugador.nombre}. Carta: {carta}")
+        # Actualizar el mensaje con el jugador actual y la carta jugada
+        self.actualizar_mensaje(f"Es el turno de:\n{jugador.nombre}\nCarta: {carta.tipo}\n{carta.descripcion}")
         
         # Habilitar los botones de aceptar/rechazar
         self.aceptar_button.config(state=tk.NORMAL)
@@ -144,12 +169,9 @@ class JuegoInterfaz:
         self.turno_actual = 0  # Restablecer el turno
         self.iniciar_button.config(state=tk.DISABLED)
         self.reiniciar_button.config(state=tk.NORMAL)
-        self.fin_button.config(state=tk.NORMAL)
-        self.actualizar_mensaje("El juego ha sido reiniciado. Agrega nuevos jugadores para comenzar.")
-        self.aceptar_button.config(state=tk.DISABLED)
-        self.rechazar_button.config(state=tk.DISABLED)
+        self.actualizar_mensaje("Juego reiniciado. ¡Esperando jugadores...")
 
-# Crear la ventana principal
+# Ejecución de la interfaz
 if __name__ == "__main__":
     root = tk.Tk()
     juego_interfaz = JuegoInterfaz(root)
