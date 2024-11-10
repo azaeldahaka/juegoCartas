@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import font
 from PIL import Image, ImageDraw, ImageTk
 import ttkthemes
 from juego import Juego
@@ -9,11 +10,10 @@ class JuegoInterfaz:
         self.root = root
         self.root.title("Juego de Verdad o Reto")
         self.root.geometry("600x500")
-        self.root.config(bg="#f7f7f7")
-
-        # Usar un tema moderno
-        style = ttkthemes.ThemedStyle(root)
-        style.set_theme("arc")  # Elegir el tema 'arc' para un diseño moderno
+        self.root.config(bg="#f0f0f0")
+        
+        # Asegúrate de que esta línea esté aquí para evitar el AttributeError
+        self.custom_font = font.Font(family="Helvetica", size=14, weight="bold")
 
         self.juego = Juego()
         self.turno_actual = 0
