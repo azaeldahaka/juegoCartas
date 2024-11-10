@@ -34,12 +34,20 @@ class JuegoInterfaz:
         self.nombre_entry = tk.Entry(self.frame_jugadores, font=("Helvetica", 14))
         self.nombre_entry.pack(padx=10, side=tk.LEFT)
 
-        self.agregar_button = ttk.Button(self.frame_jugadores, text="Agregar Jugador", command=self.agregar_jugador)
+        self.nombre_entry.bind("<Return>", self.agregar_jugador)
+
+        self.agregar_button = tk.Button(self.frame_jugadores, text="Agregar Jugador", command=self.agregar_jugador, font=self.custom_font, bg="#4CAF50", fg="white")
         self.agregar_button.pack(pady=10, side=tk.LEFT)
 
-        # Botón de finalizar y iniciar
-        self.fin_button = ttk.Button(self.root, text="Terminar de Agregar Jugadores", command=self.terminar_agregar_jugadores)
-        self.fin_button.pack(pady=10)
+        # Frame para mostrar los jugadores
+        self.frame_jugadores_participantes = tk.Frame(self.root, bg="#f0f0f0")
+        self.frame_jugadores_participantes.pack(pady=5)
+
+        self.jugadores_label = tk.Label(self.frame_jugadores_participantes, text="Jugadores Participantes:", font=self.custom_font, bg="#f0f0f0")
+        self.jugadores_label.pack(pady=10)
+
+        self.jugadores_lista = tk.Listbox(self.frame_jugadores_participantes, font=self.custom_font, width=50, height=5)
+        self.jugadores_lista.pack(padx=10, pady=6)
 
         self.iniciar_button = ttk.Button(self.root, text="Iniciar Juego", command=self.iniciar_juego, state=tk.DISABLED)
         self.iniciar_button.pack(pady=10)
@@ -89,6 +97,9 @@ class JuegoInterfaz:
         # Mostrar la imagen en el canvas
         self.canvas.create_image(0, 0, image=self.img, anchor=tk.NW)
 
+        self.reiniciar_button = tk.Button(self.root, text="Reiniciar Juego", command=self.reiniciar_juego, font=self.custom_font, bg="#FF9800", fg="white")
+        self.reiniciar_button.pack(pady=10)
+
     def agregar_jugador(self):
         nombre = self.nombre_entry.get()
         if nombre:
@@ -100,14 +111,6 @@ class JuegoInterfaz:
             self.fin_button.config(state=tk.NORMAL)  # Activar el botón para terminar de agregar
         else:
             self.actualizar_mensaje("El nombre no puede estar vacío.")
-    
-    def terminar_agregar_jugadores(self):
-        if len(self.juego.jugadores) > 1:
-            self.iniciar_button.config(state=tk.NORMAL)
-            self.fin_button.config(state=tk.DISABLED)
-            self.actualizar_mensaje("Jugadores agregados, ¡listos para jugar!")
-        else:
-            self.actualizar_mensaje("Se necesitan al menos dos jugadores para comenzar.")
 
     def iniciar_juego(self):
         if len(self.juego.jugadores) < 2:
@@ -164,14 +167,24 @@ class JuegoInterfaz:
             resultado += "\n".join([f"{ganador.nombre} con {ganador.puntos} puntos." for ganador in ganadores])
             self.actualizar_mensaje(resultado)
 
-    def reiniciar_juego(self):
-        self.juego = Juego()  # Reiniciar el objeto del juego
-        self.turno_actual = 0  # Restablecer el turno
-        self.iniciar_button.config(state=tk.DISABLED)
-        self.reiniciar_button.config(state=tk.NORMAL)
-        self.actualizar_mensaje("Juego reiniciado. ¡Esperando jugadores...")
+    def agregar_jugador(self, event=None):  # Se añade un parámetro opcional 'event'
+        nombre = self.nombre_entry.get()
+        if nombre:
+            self.juego.agregar_jugador(nombre)
+            self.jugadores_lista.insert(tk.END, nombre)  # Agregar el jugador a la lista
+            self.nombre_entry.delete(0, tk.END)
+            self.actualizar_mensaje(f"{nombre} ha sido agregado al juego.")
+            self.iniciar_button.config(state=tk.NORMAL)
+        else:
+            self.actualizar_mensaje("El nombre no puede estar vacío.")
 
-# Ejecución de la interfaz
+    def reiniciar_juego(self):
+        self.juego = Juego()  # Reiniciar el objeto Juego
+        self.jugadores_lista.delete(0, tk.END)  # Limpiar la lista de jugadores
+        self.turno_actual = 0  # Reiniciar el turno
+        self.iniciar_button.config(state=tk.DISABLED)  # Deshabilitar el botón de iniciar
+        self.actualizar_mensaje("El juego ha sido reiniciado. ¡Esperando jugadores...")
+
 if __name__ == "__main__":
     root = tk.Tk()
     juego_interfaz = JuegoInterfaz(root)
