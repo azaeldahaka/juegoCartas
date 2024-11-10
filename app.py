@@ -97,8 +97,6 @@ class JuegoInterfaz:
         # Mostrar la imagen en el canvas
         self.canvas.create_image(0, 0, image=self.img, anchor=tk.NW)
 
-        self.reiniciar_button = tk.Button(self.root, text="Reiniciar Juego", command=self.reiniciar_juego, font=self.custom_font, bg="#FF9800", fg="white")
-        self.reiniciar_button.pack(pady=10)
 
     def agregar_jugador(self):
         nombre = self.nombre_entry.get()
